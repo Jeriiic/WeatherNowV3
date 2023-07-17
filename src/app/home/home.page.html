@@ -1,0 +1,154 @@
+<ion-header [translucent]="true"></ion-header>
+
+<ion-content [fullscreen]="true">
+  <video autoplay loop muted src="assets/06.mp4"></video>
+    <div style="text-align: center; margin: 15px;">
+        <ion-label style="font-weight: 400; font-size: 1.5em; color: #332f27; font-family: 'Lobster Two', cursive;">Weather Now</ion-label>
+    </div>
+    <ion-searchbar animated [(ngModel)]="cityName" (input)="onSearchInput($event)" (ionChange)="onSearchClick()" (ionClear)="onSearchClear()" class="searchBar" placeholder="Search for City"></ion-searchbar>
+    
+    <div *ngIf="!loading && showCard" class="card-container">
+    <ion-card class="cardStyle" *ngIf="showCard">
+        <ion-item lines="none">
+            <ion-card-header style="font-weight: 1000;  font-family: 'Lobster Two', cursive;" slot="start" >Today's Report</ion-card-header>
+            <ion-label id="date" slot="end" style="color: black; font-weight:700; ; font-family: 'Lobster Two', cursive;">{{ todayDate | date: "EEE dd MMM" }}</ion-label>
+        </ion-item>
+        <ion-item lines="none">
+            <span id="temp" style="font-family: 'Lobster Two', cursive;">
+                {{ (weatherTemp.temp - 273.15).toFixed(0) }}
+            </span>
+            <span style="font-size: 1.3em; font-weight: bold; color: #00008B; margin-bottom: 25px;">o</span>
+            <img slot="end" width="180px" height="180px" [src]="weatherIcon" alt="Weather Icon"
+                class="weather-icon1">
+        </ion-item>
+        <ion-item>
+            <ion-icon id="locationIcon" name="location"></ion-icon>
+            <span style="font-weight: 800;  font-family: 'Lobster Two', cursive;">{{ cityName }}</span>
+        </ion-item>
+    </ion-card>
+   
+  
+    </div>
+    <div *ngIf="!loading && showCard" class="container">
+    <ion-card class="cardStyle2" *ngIf="showCard">
+        <ion-item>
+            <span slot="start" style="font-weight: 600; font-family: 'Lobster Two', cursive;">Highest Temp</span>
+            <span style= "color:#00008B; font-family: 'Lobster Two', cursive;" slot="end">{{ (weatherTemp.temp_max - 273.15).toFixed(0) }}°C</span>
+        </ion-item>
+
+        <ion-item>
+            <span slot="start" style="font-weight: 600; font-family: 'Lobster Two', cursive;">Lowest Temp</span>
+            <span style= "color:#00008B; font-family: 'Lobster Two', cursive;" slot="end">{{ (weatherTemp.temp_min - 273.15).toFixed(0) }}°C</span>
+        </ion-item>
+
+        <ion-item>
+            <span slot="start" style="font-weight: 600 ; font-family: 'Lobster Two', cursive;">Humidity</span>
+            <span style= "color:#00008B; font-family: 'Lobster Two', cursive;" slot="end">{{ weatherTemp.humidity }} %</span>
+        </ion-item>
+    </ion-card>
+    
+    <ion-card class="cardStyle3" *ngIf="showCard">
+        <ion-item>
+          <ion-label style= "color:black; font-weight: 600; font-family: 'Lobster Two', cursive;">Sunrise</ion-label>
+          <ion-label style= "color:#00008B ; font-family: 'Lobster Two', cursive;" slot="end"  >{{ sunrise }}</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-label style= "color:black; font-weight: 600; font-family: 'Lobster Two', cursive;">Sunset</ion-label>
+          <ion-label style= "color:#00008B; font-family: 'Lobster Two', cursive;" slot="end" >{{ sunset }}</ion-label>
+        </ion-item>
+    </ion-card>
+    </div>
+
+
+    <div *ngIf="!loading && showCard" class="hourly-forecast-time" style="color: white;">
+      <ion-card class="cardStyle4" *ngIf="showCard">
+        <ion-card-header style="color: black; font-weight: 700; font-family: 'Lobster Two', cursive;">
+          Hourly Forecast - {{ currentDate | date: "EEE, MMM d" }}
+        </ion-card-header>
+        <ion-card-content>
+          <div class="hourly-forecast">
+            <div class="scroll-container">
+              <div class="hourly-forecast-row">
+                <div *ngFor="let forecast of currentDayHourlyForecast" class="hourly-forecast-item">
+                  <div class="hourly-forecast-time" style="color: #00008B; font-family: 'Lobster Two', cursive;">{{ forecast.time }}</div>
+                  <img class="weather-icon" [src]="forecast.weatherIcon" alt="Weather Icon">
+                  <div class="hourly-forecast-temp" style="color: #00008B; font-family: 'Lobster Two', cursive;">{{ forecast.temp }}°C</div>
+                  <!-- display other forecast details as needed -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    <ion-card *ngIf="!loading && showCard" class="cardStyle">
+      <ion-card-header style="color: black; font-weight: 700 ; font-family: 'Lobster Two', cursive;">
+        Wind Information
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          
+          
+          <ion-label style="color: black; font-weight: 600; font-family: 'Lobster Two', cursive;" >Wind Direction:
+          </ion-label>
+          
+          <ion-label slot="end" style="color: #00008B; font-family: 'Lobster Two', cursive;" class="wind-direction">{{ simplifyWindDirection(windInfo.deg) }}
+           </ion-label> <div class="compass">
+            <div class="compass-inner">
+              <div class="north">N</div>
+              <div class="east">E</div>
+              <div class="west">W</div>
+              <div class="south">S</div>
+              <div class="main-arrow" #mainArrow >
+                <div class="arrow-up"></div>
+                <div class="arrow-down"></div>
+              </div>
+            </div>
+          </div>
+          
+          </ion-item>
+          <ion-item>
+            <ion-label style="color: black; font-weight: 600; font-family: 'Lobster Two', cursive;">Wind Gust:</ion-label>
+            <ion-label slot="end" style="color: #00008B; font-family: 'Lobster Two', cursive;">{{ simplifyWindGust(windInfo.gust) }}</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label style="color: black; font-weight: 600; font-family: 'Lobster Two', cursive;">Wind Speed:</ion-label>
+            <ion-label slot="end" style="color: #00008B; font-family: 'Lobster Two', cursive;">{{ simplifyWindSpeed(windInfo.speed) }}</ion-label>
+          </ion-item>
+          </ion-card-content>
+          </ion-card>
+          
+    
+    
+    <ion-card *ngIf="!loading && showCard" class="cardStyle5">
+      <ion-card-header style="color: black; font-weight: 700; font-family: 'Lobster Two', cursive;">
+        Five-Day Forecast
+      </ion-card-header>
+      <ion-card-content class="content5">
+        <ion-list>
+          <div class="scroll-container">
+            <div class="five-day-forecast-row" >
+              <ion-item *ngFor="let forecast of fiveDayForecast" class="five-day-forecast-item" lines="none">
+                <ion-label style="color: #00008B; font-family: 'Lobster Two', cursive;">
+                  <div>{{ forecast.date | date: 'EEE, MMM d' }}</div>
+                  <div>{{ forecast.tempMin }}°C - {{ forecast.tempMax }}°C</div>
+                  <div>
+                    <img class="weather-icon" [src]="forecast.weatherIcon" alt="Weather Icon">
+                  </div>
+                  <div>{{ forecast.weather }}</div>
+                </ion-label>
+              </ion-item>
+            </div>
+          </div>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+    
+    
+  
+    <div *ngIf="loading && showCard" class="idle-page">
+        <img src="../../assets//1.png">
+    
+    </div>
+
+</ion-content>
